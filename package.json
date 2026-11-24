@@ -16,9 +16,12 @@
     "package": "fuyu-plugin pack --config build.config.json",
     "typecheck": "tsc",
     "lint": "eslint .",
-    "test": "npm run build && node --experimental-strip-types --test test/*.test.mjs"
+    "test": "npm run build && node --experimental-strip-types --test test/*.test.mjs",
+    "preview": "esbuild tools/preview-entry.tsx --bundle --platform=node --format=esm --jsx=automatic --packages=external --outfile=build/.preview/preview.mjs && node build/.preview/preview.mjs",
+    "image": "node --experimental-strip-types tools/preview-image.mts"
   },
   "devDependencies": {
+    "@resvg/resvg-js": "^2.6.2",
     "@types/node": "^26.6.6",
     "@types/react": "^19.1.8",
     "eslint": "^10.14.0",

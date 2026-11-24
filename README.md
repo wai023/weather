@@ -2,6 +2,10 @@
 
 浮屿（Fuyu）插件。收起条显示当前天气图标与温度，点开是整页预报：头部是城市与实况，中间七天卡片，底部 24 小时逐时折线与降雨概率。默认按网络定位所在城市，定位不准可以改成手动填城市。
 
+![775 版心与 360 窄屏的面板](docs/preview.png)
+
+上图是按 `src/panel.tsx` 与 `src/styles.css` 的实际尺寸画出来的：上面是 775 版心，下面是 360 窄屏缩到 0.68 后的样子（七天卡片开始横滑）。数据是 11 月南通的示意值。
+
 ## 功能
 
 - **两种定位方式**：`自动定位` 按网络出口 IP 判断城市，面板头部显示城市名并带「自动定位」标记；`手动` 自己填城市名，中文或拼音都行。自动定位偏到隔壁城市时，面板页脚有「定位不准？改手动」直接进设置
@@ -61,17 +65,28 @@ npm test          # 构建 + 单测（23 项）
 npm run lint      # eslint
 npm run typecheck # tsc
 npm run package   # 打成 .fuyu 安装包
+npm run preview   # 用真实组件渲染 build/panel.html
+npm run image     # 重画 README 顶部那张图
 ```
 
 预览面板不用浏览器：`tools/preview-entry.tsx` 用 esbuild 打包，再用 `react-dom/server` 渲染真实的 `PanelView`，输出 `build/panel.html`（775 / 480 / 360 与空态几帧）。
 
 ```bash
-npx esbuild tools/preview-entry.tsx --bundle --platform=node --format=esm \
-  --jsx=automatic --packages=external --outfile=build/.preview/preview.mjs && node build/.preview/preview.mjs
+npm run preview
 ```
+
+README 顶部那张图同理，只是输出成 PNG：`tools/preview-image.mts` 按 `panel.tsx` / `styles.css` 的尺寸逐个画成 SVG（图标用 Twemoji，GitHub 渲染 emoji 也是这套），再用 `@resvg/resvg-js` 光栅化。素材不进版本库，重画前先取一次：
+
+```bash
+python tools/fetch-emoji.py
+npm run image
+```
+
+`tools/sample.ts` 是两份预览共用的假数据，改数字只需改这一处。
 
 ## 已知限制
 
 - **网络定位只到「出口 IP 所在城市」**，不是 GPS。同一台机器实测过两家库分别给苏州和无锡（出口 IP 在轮换），出差跨网、开代理都会偏——所以手动方式是必需的兜底
 - 逐小时数据决定了提醒只能落在整点，做不到「20 分钟后下雨」这种精度
 - 面板的湿度、气压、紫外线来自同一份 `hourly` / `current` 响应，接口缺字段时显示 `—`，不会编数
+- README 的图是按尺寸用 SVG 重画的，不是截图：换机器的字体会有一两像素的差异，但间距、字号、配色和插件里一致
