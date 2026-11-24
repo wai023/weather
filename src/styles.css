@@ -1,0 +1,460 @@
+/* 收起条 */
+.weather-bar {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.weather-bar--off {
+  opacity: 0.55;
+}
+
+.weather-bar__glyph {
+  display: block;
+  width: 14px;
+  height: 14px;
+}
+
+.weather-bar__temp {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- 面板：以 775 宽为版心，--wx-u 是缩放系数 ---------- */
+.wx-panel {
+  --wx-u: 1;
+  --wx-text: var(--fuyu-plugin-text, #f2f2f2);
+  --wx-text-2: var(--fuyu-plugin-text-muted, #8f8f95);
+  --wx-text-3: #c2c2c9;
+  --wx-card: rgba(255, 255, 255, 0.06);
+  --wx-card-hi: rgba(255, 255, 255, 0.13);
+  --wx-border: rgba(255, 255, 255, 0.08);
+  --wx-chart: rgba(255, 255, 255, 0.04);
+  --wx-accent: #1268bd;
+  --wx-line: #e6b446;
+
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  /* 版心里左右各留 18（参考图的内边距），窄屏时按 2.5% 收，别把卡片挤没 */
+  padding: calc(6px * var(--wx-u)) min(calc(18px * var(--wx-u)), 2.5%) calc(2px * var(--wx-u));
+  color: var(--wx-text);
+  font-family: var(--fuyu-plugin-font, "PingFang SC", "Microsoft YaHei", system-ui, sans-serif);
+  font-size: max(11px, calc(13px * var(--wx-u)));
+  -webkit-font-smoothing: antialiased;
+}
+
+.wx-emoji {
+  font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif;
+  font-style: normal;
+  line-height: 1;
+}
+
+/* 不靠宿主的全局 reset：卡片有固定宽高，必须让 padding / border 算进去 */
+.wx-panel,
+.wx-panel *,
+.wx-panel *::before,
+.wx-panel *::after {
+  box-sizing: border-box;
+}
+
+/* ---------- 头部 ---------- */
+.wx-head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: center;
+  cursor: pointer;
+}
+
+.wx-head__title {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: calc(18px * var(--wx-u));
+  max-width: 100%;
+  font-size: max(20px, calc(30px * var(--wx-u)));
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: 0.01em;
+}
+
+.wx-head__place {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(9px * var(--wx-u));
+  min-width: 0;
+}
+
+.wx-head__city {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 自动定位的标记：城市名是猜出来的，得让人看得见这是「当前网络所在」。 */
+.wx-head__tag {
+  flex: none;
+  align-self: center;
+  padding: calc(3px * var(--wx-u)) calc(8px * var(--wx-u));
+  border: 1px solid rgba(18, 104, 189, 0.5);
+  border-radius: calc(6px * var(--wx-u));
+  background: rgba(18, 104, 189, 0.16);
+  color: #82b6e8;
+  font-size: max(9.5px, calc(12px * var(--wx-u)));
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.wx-head__temp {
+  font-variant-numeric: tabular-nums;
+  flex: none;
+}
+
+.wx-head__sun {
+  display: flex;
+  justify-content: center;
+  gap: calc(26px * var(--wx-u));
+  margin-top: calc(15px * var(--wx-u));
+  font-size: max(10.5px, calc(13px * var(--wx-u)));
+  color: #e9e9ec;
+}
+
+.wx-head__sun > span {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(7px * var(--wx-u));
+  font-variant-numeric: tabular-nums;
+}
+
+.wx-head__meta {
+  display: block;
+  margin-top: calc(13px * var(--wx-u));
+  font-size: max(10.5px, calc(13px * var(--wx-u)));
+  line-height: 1.55;
+  color: var(--wx-text-2);
+}
+
+.wx-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  row-gap: 1px;
+}
+
+.wx-meta > span {
+  white-space: nowrap;
+}
+
+.wx-meta > span + span::before {
+  content: "·";
+  margin: 0 0.55em;
+  color: #4a4a4e;
+}
+
+.wx-meta em {
+  font-style: normal;
+  color: var(--wx-text-3);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- 七日 ---------- */
+.wx-days {
+  display: flex;
+  gap: calc(8px * var(--wx-u));
+  margin-top: calc(15px * var(--wx-u));
+  padding-bottom: 2px;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+  justify-content: safe center;
+}
+
+.wx-days::-webkit-scrollbar {
+  display: none;
+}
+
+.wx-day {
+  flex: 0 0 auto;
+  width: max(64px, calc(98.5px * var(--wx-u)));
+  height: max(104px, calc(148px * var(--wx-u)));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: calc(12px * var(--wx-u)) calc(6px * var(--wx-u)) calc(11px * var(--wx-u));
+  border: 1px solid var(--wx-border);
+  border-radius: calc(11px * var(--wx-u));
+  background: var(--wx-card);
+  scroll-snap-align: start;
+}
+
+.wx-day--today {
+  background: var(--wx-card-hi);
+  border-color: var(--wx-accent);
+  box-shadow: inset 0 0 0 1px rgba(18, 104, 189, 0.28);
+}
+
+.wx-day__label {
+  font-size: max(10px, calc(12.5px * var(--wx-u)));
+  line-height: 1.3;
+  color: var(--wx-text-2);
+  letter-spacing: 0.02em;
+}
+
+.wx-day--today .wx-day__label {
+  color: var(--wx-text);
+  font-weight: 500;
+}
+
+.wx-day__icon {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  font-size: max(28px, calc(54px * var(--wx-u)));
+}
+
+.wx-day__hi,
+.wx-day__lo {
+  font-size: max(12px, calc(15px * var(--wx-u)));
+  line-height: 1.25;
+  font-variant-numeric: tabular-nums;
+}
+
+.wx-day__hi {
+  font-weight: 600;
+}
+
+.wx-day__lo {
+  color: var(--wx-text-2);
+}
+
+/* ---------- 逐小时：一屏 4 列，横滑翻页 ---------- */
+.wx-chart {
+  margin-top: calc(20px * var(--wx-u));
+}
+
+.wx-chart__track {
+  display: flex;
+  height: max(104px, calc(153px * var(--wx-u)));
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: calc(13px * var(--wx-u));
+  background: var(--wx-chart);
+}
+
+.wx-chart__track::-webkit-scrollbar {
+  display: none;
+}
+
+.wx-page {
+  position: relative;
+  flex: 0 0 100%;
+  height: 100%;
+  overflow: hidden;
+  scroll-snap-align: start;
+}
+
+.wx-page__cols {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  height: 100%;
+}
+
+.wx-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+  padding-top: calc(12px * var(--wx-u));
+}
+
+.wx-col__temp {
+  font-size: max(10.5px, calc(13px * var(--wx-u)));
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+}
+
+.wx-col__icon {
+  margin-top: calc(46px * var(--wx-u));
+  font-size: max(18px, calc(26px * var(--wx-u)));
+}
+
+.wx-col__wind {
+  margin-top: calc(13px * var(--wx-u));
+  font-size: max(10px, calc(12.5px * var(--wx-u)));
+  line-height: 1;
+  color: var(--wx-text-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.wx-col__time {
+  margin-top: calc(9px * var(--wx-u));
+  font-size: max(10.5px, calc(13px * var(--wx-u)));
+  font-weight: 600;
+  line-height: 1.15;
+}
+
+/* 折线带：版心里固定在 y=34..54，随 --wx-u 缩放 */
+.wx-line,
+.wx-line__dots {
+  position: absolute;
+  left: 0;
+  top: calc(34px * var(--wx-u));
+  width: 100%;
+  height: calc(20px * var(--wx-u));
+  pointer-events: none;
+}
+
+.wx-line {
+  color: var(--wx-line);
+  overflow: visible;
+}
+
+.wx-line__dots i {
+  position: absolute;
+  width: max(4px, calc(6px * var(--wx-u)));
+  height: max(4px, calc(6px * var(--wx-u)));
+  border-radius: 50%;
+  background: var(--wx-line);
+  transform: translate(-50%, -50%);
+}
+
+/* ---------- 翻页点 ---------- */
+.wx-pager {
+  display: flex;
+  justify-content: center;
+  gap: calc(5px * var(--wx-u));
+  margin-top: calc(9px * var(--wx-u));
+}
+
+.wx-pager__dot {
+  position: relative;
+  width: 4px;
+  height: 4px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: #3a3a3f;
+  cursor: pointer;
+}
+
+/* 点只有 4px，点开范围补到 14px，不然很难点中 */
+.wx-pager__dot::before {
+  content: "";
+  position: absolute;
+  inset: -5px;
+}
+
+.wx-pager__dot.is-on {
+  background: var(--wx-text-3);
+}
+
+/* ---------- 页脚 ---------- */
+.wx-foot {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.6em;
+  margin-top: calc(9px * var(--wx-u));
+  font-size: max(9.5px, calc(11.5px * var(--wx-u)));
+  color: #77777d;
+}
+
+.wx-foot__note {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wx-foot__button {
+  flex: none;
+  padding: 0 2px;
+  border: 0;
+  background: none;
+  color: #9c9ca3;
+  font: inherit;
+  cursor: pointer;
+}
+
+.wx-foot__button:hover {
+  color: var(--wx-text);
+}
+
+/* ---------- 空态 ---------- */
+.wx-panel--empty {
+  align-items: center;
+  gap: 6px;
+  padding: 26px 18px 24px;
+  text-align: center;
+}
+
+.wx-empty__icon {
+  font-size: 40px;
+  line-height: 1;
+}
+
+.wx-empty__title {
+  margin: 4px 0 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.wx-empty__text {
+  margin: 0;
+  max-width: 26em;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--wx-text-2);
+}
+
+.wx-empty__actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.wx-button {
+  padding: 5px 14px;
+  border: 1px solid var(--wx-accent);
+  border-radius: 999px;
+  background: rgba(18, 104, 189, 0.18);
+  color: var(--wx-text);
+  font: inherit;
+  font-size: 12.5px;
+  cursor: pointer;
+}
+
+.wx-button:hover {
+  background: rgba(18, 104, 189, 0.3);
+}
+
+.wx-button--ghost {
+  border-color: rgba(255, 255, 255, 0.14);
+  background: none;
+  color: var(--wx-text-2);
+}
+
+.wx-button--ghost:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--wx-text);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wx-chart__track,
+  .wx-days {
+    scroll-behavior: auto;
+  }
+}

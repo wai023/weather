@@ -1,0 +1,87 @@
+{
+  "name": "@wai023/weather",
+  "version": "0.3.1",
+  "type": "module",
+  "description": "Auto-locate by network or use a typed city, with a bar reading, a seven-day and 24-hour panel, and a warning before it rains",
+  "license": "MIT",
+  "author": "wai023",
+  "repository": "github:wai023/weather",
+  "engines": {
+    "fuyu": ">=0.3.10"
+  },
+  "scripts": {
+    "dev": "fuyu-plugin dev --config build.config.json",
+    "build": "fuyu-plugin build --config build.config.json",
+    "check": "fuyu-plugin check",
+    "package": "fuyu-plugin pack --config build.config.json",
+    "typecheck": "tsc",
+    "lint": "eslint .",
+    "test": "npm run build && node --experimental-strip-types --test test/*.test.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.1.8",
+    "eslint": "^10.14.0",
+    "fuyu-plugin": "^2.1.0",
+    "typescript": "~5.8.3",
+    "typescript-eslint": "^8.72.1"
+  },
+  "fuyu": {
+    "manifest": 1,
+    "displayName": {
+      "zh-CN": "天气",
+      "en": "Weather"
+    },
+    "description": {
+      "zh-CN": "自动按网络定位所在城市，也可以手动填城市；收起条显示当前温度，面板给出七日与 24 小时预报，快下雨时提前提醒",
+      "en": "Auto-locate by network or use a typed city, with a bar reading, a seven-day and 24-hour panel, and a warning before it rains"
+    },
+    "icon": "assets/icon.svg",
+    "categories": [
+      "information"
+    ],
+    "platforms": [
+      "windows",
+      "macos"
+    ],
+    "host": "dist/host.js",
+    "client": {
+      "island": "dist/island.js"
+    },
+    "config": "dist/config.schema.json",
+    "inject": {
+      "required": [
+        "clients",
+        "commands",
+        "messages/v1"
+      ],
+      "optional": []
+    },
+    "slots": [
+      "island.page/v1",
+      "island.collapsed/v1"
+    ],
+    "commands": [
+      {
+        "id": "refresh",
+        "title": {
+          "zh-CN": "刷新天气",
+          "en": "Refresh weather"
+        },
+        "keybinding": "Ctrl+Alt+W"
+      }
+    ],
+    "network": [
+      "api.open-meteo.com",
+      "geocoding-api.open-meteo.com",
+      "ipwho.is",
+      "ipapi.co",
+      "ip-api.com",
+      "api.bigdatacloud.net"
+    ],
+    "nodeApis": [
+      "fs",
+      "path"
+    ]
+  }
+}

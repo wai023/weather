@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>天气面板 · 静态版式确认</title>
+<style>
+  :root {
+    --panel: #000;
+    --card: #0f0f0f;
+    --card-hi: #242424;
+    --chart: #0d0d0d;
+    --border: #1f1f22;
+    --accent: #1268bd;
+    --text: #f2f2f2;
+    --text-2: #8f8f95;
+    --text-3: #b9b9c0;
+    --line: #e6b446;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: 28px 16px 36px;
+    background: #141414;
+    color: var(--text);
+    font-family: "PingFang SC", "Microsoft YaHei", "Segoe UI", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .stage { width: 775px; max-width: 100%; }
+
+  .stage__hint {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin: 0 2px 8px;
+    font-size: 11.5px;
+    color: #6f6f75;
+    letter-spacing: .2px;
+  }
+  .stage__hint b { color: #9c9ca3; font-weight: 600; }
+
+  .panel {
+    position: relative;
+    background: var(--panel);
+    border-radius: 26px;
+    padding: 34px 18px 20px;
+    box-shadow: 0 22px 60px rgba(0, 0, 0, .55);
+  }
+
+  /* ---------- 头部 ---------- */
+  .head { text-align: center; }
+
+  .head__title {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 18px;
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 34px;
+    letter-spacing: .3px;
+  }
+  .head__city { color: var(--text); }
+  .head__temp {
+    font-variant-numeric: tabular-nums;
+    color: var(--text);
+  }
+
+  .head__sun {
+    display: flex;
+    justify-content: center;
+    gap: 26px;
+    margin-top: 15px;
+    font-size: 13px;
+    color: #e9e9ec;
+  }
+  .head__sun span { display: inline-flex; align-items: center; gap: 7px; }
+  .head__sun .ico { width: 16px; height: 16px; }
+
+  .head__meta {
+    margin-top: 13px;
+    font-size: 13px;
+    line-height: 22px;
+    color: var(--text-2);
+  }
+  .head__meta em {
+    font-style: normal;
+    color: var(--text-3);
+    font-variant-numeric: tabular-nums;
+  }
+  .head__meta i {
+    font-style: normal;
+    margin: 0 7px;
+    color: #4a4a4e;
+  }
+
+  /* ---------- 七日 ---------- */
+  .days {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 15px;
+  }
+
+  .day {
+    height: 148px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 12px 6px 13px;
+    border-radius: 11px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+  .day--today {
+    background: var(--card-hi);
+    border-color: var(--accent);
+    box-shadow: inset 0 0 0 .5px var(--accent);
+  }
+
+  .day__label {
+    font-size: 12.5px;
+    line-height: 16px;
+    color: var(--text-2);
+    letter-spacing: .2px;
+  }
+  .day--today .day__label { color: var(--text); font-weight: 500; }
+
+  .day__icon {
+    flex: 1;
+    display: grid;
+    place-items: center;
+  }
+  .day__icon .ico { width: 54px; height: 54px; }
+
+  .day__temp {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    font-size: 15px;
+    line-height: 18px;
+    font-variant-numeric: tabular-nums;
+  }
+  .day__hi { font-weight: 600; }
+  .day__lo { color: var(--text-2); }
+
+  /* ---------- 逐小时 ---------- */
+  .chart {
+    position: relative;
+    height: 153px;
+    margin-top: 20px;
+    border-radius: 13px;
+    background: var(--chart);
+    border: 1px solid #191919;
+    overflow: hidden;
+  }
+
+  .chart__line {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  .chart__cols {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 12px;
+  }
+  .col__temp {
+    font-size: 13px;
+    line-height: 15px;
+    font-variant-numeric: tabular-nums;
+  }
+  .col__icon { margin-top: 46px; }
+  .col__icon .ico { width: 26px; height: 26px; }
+  .col__wind {
+    margin-top: 13px;
+    font-size: 12.5px;
+    line-height: 12px;
+    color: var(--text-2);
+    font-variant-numeric: tabular-nums;
+  }
+  .col__time {
+    margin-top: 9px;
+    font-size: 13px;
+    line-height: 15px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .foot {
+    margin-top: 16px;
+    text-align: center;
+    font-size: 11.5px;
+    color: #77777d;
+    letter-spacing: .2px;
+  }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="stage__hint">
+    <span><b>静态版式</b> · 假数据，仅确认比例与层级</span>
+    <span>面板 775 · 卡片 98.5×148 · 图表 739×153</span>
+  </div>
+
+  <div class="panel">
+    <header class="head">
+      <div class="head__title">
+        <span class="head__city">南通, 江苏</span>
+        <span class="head__temp">7°C</span>
+      </div>
+
+      <div class="head__sun">
+        <span><svg class="ico" viewBox="0 0 32 32"><use href="#i-sun-sm"></use></svg>06:32</span>
+        <span><svg class="ico" viewBox="0 0 32 32"><use href="#i-moon-sm"></use></svg>16:53</span>
+      </div>
+
+      <div class="head__meta">
+        体感温度 <em>3°</em><i>·</i>晴<i>·</i>湿度 <em>63%</em><i>·</i>气压 <em>1032 hPa</em><br>
+        云量 <em>0%</em><i>·</i>降雨概率 <em>0%</em><i>·</i>紫外线指数 <em>4.0</em>
+      </div>
+    </header>
+
+    <div class="days" id="days"></div>
+
+    <div class="chart" id="chart">
+      <svg class="chart__line" id="line" viewBox="0 0 739 153" preserveAspectRatio="none"></svg>
+      <div class="chart__cols" id="cols"></div>
+    </div>
+
+    <div class="foot">天气数据来自 Open-Meteo.com</div>
+  </div>
+</div>
+
+<!-- 图标：云、多云、晴、月 -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="g-cloud" gradientUnits="userSpaceOnUse" x1="0" y1="4" x2="0" y2="30">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset=".62" stop-color="#e6ebf3"/>
+      <stop offset="1" stop-color="#bfcad9"/>
+    </linearGradient>
+    <linearGradient id="g-cloud2" gradientUnits="userSpaceOnUse" x1="0" y1="6" x2="0" y2="30">
+      <stop offset="0" stop-color="#f7f9fc"/>
+      <stop offset="1" stop-color="#c3cedd"/>
+    </linearGradient>
+    <radialGradient id="g-sun" cx=".38" cy=".34" r=".72">
+      <stop offset="0" stop-color="#ffe07a"/>
+      <stop offset=".58" stop-color="#ffcb3d"/>
+      <stop offset="1" stop-color="#f0ac22"/>
+    </radialGradient>
+    <linearGradient id="g-moon" gradientUnits="userSpaceOnUse" x1="4" y1="6" x2="24" y2="28">
+      <stop offset="0" stop-color="#ffc65a"/>
+      <stop offset="1" stop-color="#e79a2b"/>
+    </linearGradient>
+    <mask id="m-moon-sm">
+      <rect width="32" height="32" fill="#fff"/>
+      <circle cx="23.4" cy="8.6" r="11.6" fill="#000"/>
+    </mask>
+    <mask id="m-moon">
+      <rect width="32" height="32" fill="#fff"/>
+      <circle cx="22.4" cy="10.2" r="10.4" fill="#000"/>
+    </mask>
+  </defs>
+
+  <!-- 云：多个圆叠成一个整体，渐变用 userSpaceOnUse 才不会出现接缝 -->
+  <symbol id="i-cloud">
+    <g fill="url(#g-cloud)">
+      <circle cx="11.6" cy="19.4" r="5.6"/>
+      <circle cx="17.4" cy="15.4" r="7.4"/>
+      <circle cx="23.2" cy="19.8" r="4.8"/>
+      <rect x="10.8" y="18.2" width="13.4" height="7.2" rx="3.6"/>
+    </g>
+  </symbol>
+
+  <!-- 多云：太阳在云后 -->
+  <symbol id="i-partly">
+    <circle cx="21.2" cy="11.6" r="5.2" fill="url(#g-sun)"/>
+    <g fill="url(#g-cloud2)">
+      <circle cx="10.4" cy="20.2" r="5.2"/>
+      <circle cx="15.8" cy="16.6" r="6.8"/>
+      <circle cx="21.2" cy="20.6" r="4.4"/>
+      <rect x="9.6" y="19" width="12.4" height="6.6" rx="3.3"/>
+    </g>
+  </symbol>
+
+  <!-- 晴 -->
+  <symbol id="i-sun">
+    <g stroke="#f7bd35" stroke-width="2.2" stroke-linecap="round">
+      <line x1="16" y1="6.5" x2="16" y2="9.4"/>
+      <line x1="16" y1="22.6" x2="16" y2="25.5"/>
+      <line x1="6.5" y1="16" x2="9.4" y2="16"/>
+      <line x1="22.6" y1="16" x2="25.5" y2="16"/>
+      <line x1="9.3" y1="9.3" x2="11.4" y2="11.4"/>
+      <line x1="20.6" y1="20.6" x2="22.7" y2="22.7"/>
+      <line x1="22.7" y1="9.3" x2="20.6" y2="11.4"/>
+      <line x1="11.4" y1="20.6" x2="9.3" y2="22.7"/>
+    </g>
+    <circle cx="16" cy="16" r="5.4" fill="url(#g-sun)"/>
+  </symbol>
+
+  <!-- 紧凑太阳（头部日出）：整圆占满画布，带一圈淡光 -->
+  <symbol id="i-sun-sm">
+    <circle cx="16" cy="16" r="15.4" fill="#f7a92a" opacity=".3"/>
+    <circle cx="16" cy="16" r="12.6" fill="url(#g-sun)"/>
+  </symbol>
+
+  <symbol id="i-moon-sm">
+    <circle cx="16" cy="16" r="14" fill="url(#g-moon)" mask="url(#m-moon-sm)"/>
+  </symbol>
+
+  <!-- 月牙：整圆减去偏移圆（用 mask，evenodd 会把偏移圆露在外面的部分也填上） -->
+  <symbol id="i-moon">
+    <circle cx="16" cy="16" r="12.4" fill="url(#g-moon)" mask="url(#m-moon)"/>
+  </symbol>
+</svg>
+
+<script>
+  const days = [
+    { label: "今天",   icon: "i-cloud",  hi: 11, lo: 4, today: true },
+    { label: "明天",   icon: "i-cloud",  hi: 11, lo: 4 },
+    { label: "星期四", icon: "i-cloud",  hi: 17, lo: 8 },
+    { label: "星期五", icon: "i-partly", hi: 17, lo: 9 },
+    { label: "星期六", icon: "i-cloud",  hi: 13, lo: 5 },
+    { label: "星期日", icon: "i-sun",    hi: 13, lo: 4 },
+    { label: "星期一", icon: "i-sun",    hi: 18, lo: 8 },
+  ];
+
+  const hourly = [
+    { time: "现在",  temp: 7, wind: 9,  icon: "i-moon" },
+    { time: "21:00", temp: 6, wind: 10, icon: "i-moon" },
+    { time: "22:00", temp: 5, wind: 10, icon: "i-moon" },
+    { time: "23:00", temp: 5, wind: 7,  icon: "i-moon" },
+  ];
+
+  document.getElementById("days").innerHTML = days.map((d) => `
+    <div class="day${d.today ? " day--today" : ""}">
+      <div class="day__label">${d.label}</div>
+      <div class="day__icon"><svg class="ico" viewBox="0 0 32 32"><use href="#${d.icon}"></use></svg></div>
+      <div class="day__temp">
+        <span class="day__hi">${d.hi}°</span>
+        <span class="day__lo">${d.lo}°</span>
+      </div>
+    </div>`).join("");
+
+  document.getElementById("cols").innerHTML = hourly.map((h) => `
+    <div class="col">
+      <div class="col__temp">${h.temp}°</div>
+      <div class="col__icon"><svg class="ico" viewBox="0 0 32 32"><use href="#${h.icon}"></use></svg></div>
+      <div class="col__wind">${h.wind} km/h</div>
+      <div class="col__time">${h.time}</div>
+    </div>`).join("");
+
+  // 折线：点位对齐四列中心，纵向按卡片内 y=34~54 映射温度
+  const LINE = document.getElementById("line");
+  function drawLine() {
+    const box = LINE.getBoundingClientRect();
+    const W = box.width || 739;
+    LINE.setAttribute("viewBox", `0 0 ${W} 153`);
+
+    const temps = hourly.map((h) => h.temp);
+    const max = Math.max(...temps);
+    const min = Math.min(...temps);
+    const yTop = 34, yBot = 54;
+    const yOf = (t) =>
+      max === min ? (yTop + yBot) / 2 : yTop + ((max - t) / (max - min)) * (yBot - yTop);
+
+    const pts = hourly.map((h, i) => ({ x: (W / 4) * (i + 0.5), y: yOf(h.temp) }));
+
+    LINE.innerHTML = `
+      <polyline points="${pts.map((p) => `${p.x},${p.y}`).join(" ")}"
+        fill="none" stroke="#e6b446" stroke-width="1.6"
+        stroke-linejoin="round" stroke-linecap="round"/>
+      ${pts.map((p) => `<circle cx="${p.x}" cy="${p.y}" r="3.2" fill="#e6b446"/>`).join("")}`;
+  }
+
+  drawLine();
+  new ResizeObserver(drawLine).observe(LINE);
+</script>
+</body>
+</html>

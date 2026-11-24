@@ -1,0 +1,94 @@
+{
+  "type": "object",
+  "properties": {
+    "source": {
+      "type": "string",
+      "title": {
+        "zh-CN": "定位方式",
+        "en": "Location"
+      },
+      "description": {
+        "zh-CN": "auto=自动定位（按网络出口判断所在城市，面板上会显示定位到的城市名和「自动定位」标记）；manual=手动选城市（在下面填）。定位不准时就改成 manual",
+        "en": "auto detects the city from your network address and shows its name with an Auto-located tag; manual uses the city below. Switch to manual when the detected city is wrong"
+      },
+      "enum": ["auto", "manual"],
+      "default": "auto"
+    },
+    "city": {
+      "type": "string",
+      "title": {
+        "zh-CN": "城市（手动）",
+        "en": "City (manual)"
+      },
+      "description": {
+        "zh-CN": "只在手动方式下使用。填城市名，中文或拼音都行（南通 / Nantong），保存后自动解析成坐标；同名地点优先取国内的行政中心。自动定位偏到隔壁城市时，把上面的定位方式改成 manual，在这里填准",
+        "en": "Used in manual mode only. A city name, Chinese or pinyin (Nantong); Chinese administrative centres win when names collide. If auto-location lands in a neighbouring city, switch the mode to manual and put the right city here"
+      },
+      "default": ""
+    },
+    "units": {
+      "type": "string",
+      "title": {
+        "zh-CN": "温度单位",
+        "en": "Temperature unit"
+      },
+      "description": {
+        "zh-CN": "celsius=摄氏度；fahrenheit=华氏度",
+        "en": "celsius or fahrenheit"
+      },
+      "enum": ["celsius", "fahrenheit"],
+      "default": "celsius"
+    },
+    "rainAlert": {
+      "type": "boolean",
+      "title": {
+        "zh-CN": "下雨提醒",
+        "en": "Rain alert"
+      },
+      "description": {
+        "zh-CN": "快下雨时弹一条通知。正在下雨时不提醒，同一场雨两小时内只提醒一次",
+        "en": "Notify before rain starts. Not repeated within two hours for the same spell, and silent when it is already raining"
+      },
+      "default": true
+    },
+    "rainLookahead": {
+      "type": "string",
+      "title": {
+        "zh-CN": "看未来几小时",
+        "en": "Look ahead"
+      },
+      "description": {
+        "zh-CN": "1=未来一小时；2=两小时（默认）；3=三小时。接口是逐小时数据，提醒会落在整点上，文案里会写明是几点",
+        "en": "1, 2 or 3 hours. The API is hourly, so the alert names the hour it expects rain"
+      },
+      "enum": ["1", "2", "3"],
+      "default": "2"
+    },
+    "rainThreshold": {
+      "type": "string",
+      "title": {
+        "zh-CN": "降水概率阈值",
+        "en": "Rain probability threshold"
+      },
+      "description": {
+        "zh-CN": "概率到这个数才提醒。30 更敏感、容易误报；70 更保守、可能漏掉小雨",
+        "en": "Only alert at or above this probability. 30 is eager, 70 is conservative"
+      },
+      "enum": ["30", "50", "70"],
+      "default": "50"
+    },
+    "refresh": {
+      "type": "string",
+      "title": {
+        "zh-CN": "刷新间隔",
+        "en": "Refresh interval"
+      },
+      "description": {
+        "zh-CN": "多少分钟取一次数。10=十分钟；15=一刻钟；30=半小时；60=一小时",
+        "en": "Minutes between fetches: 10, 15, 30 or 60"
+      },
+      "enum": ["10", "15", "30", "60"],
+      "default": "15"
+    }
+  }
+}
